@@ -6,9 +6,9 @@ import * as XLSX from "xlsx";
 function App() {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    origin: "",
-    destination: "",
-    selectedDate: "",
+    origin: "CPH",
+    destination: "BKK",
+    selectedDate: new Date().toISOString().split("T")[0],
     adults: 1,
     currency: "EUR",
     max: 10,
@@ -107,6 +107,7 @@ function App() {
                 value={formData.selectedDate}
                 onChange={handleChange}
                 required
+                min={new Date().toISOString().split("T")[0]}
               />
             </div>
           </div>

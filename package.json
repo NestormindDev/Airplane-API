@@ -3,20 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@duffel/api": "^4.14.1",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.10.0",
     "bootstrap": "^5.3.7",
-    "concurrently": "^9.2.0",
-    "cors": "^2.8.5",
-    "dotenv": "^17.2.0",
-    "express": "^5.1.0",
     "fs": "^0.0.1-security",
-    "mongoose": "^8.16.4",
-    "nodemon": "^3.1.10",
     "path": "^0.12.7",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
@@ -28,9 +21,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "server": "nodemon src/backend/server.js",
-    "start:dev": "concurrently \"npm run server\" \"npm run start\""
+    "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": [
