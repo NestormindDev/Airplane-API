@@ -2,8 +2,10 @@ import "./App.css";
 import { useState } from "react";
 import Axios from "./api/axiox";
 import * as XLSX from "xlsx";
+import { useNavigate } from "react-router-dom";
 
 function App() {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     origin: "CPH",
@@ -34,12 +36,9 @@ function App() {
     };
 
     try {
-      const response = await Axios.post(
-        `${process.env.REACT_APP_AMADEUS_API_BASE_URL}api/fetch-flights`,
-        body
-      );
+      const response = await Axios.post(`api/fetch-flights`, body);
 
-      const flattened = response.data.flights.flatMap((flight, index) => {
+      const flattened = response.data.flights.flatMap((flight) => {
         if (!flight || flight.length === 0) return [];
         const { departureDate } = flight;
         return {
@@ -74,11 +73,23 @@ function App() {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.clear();
+    console.log("User logged out");
+    navigate("/login");
+  };
+
   return (
     <div className="App">
+      <div className="container mt-3 d-flex justify-content-end">
+        <button className="btn btn-outline-danger" onClick={handleLogout}>
+          Logout
+        </button>
+      </div>
+
       <form
         onSubmit={handleSubmit}
-        className="container mt-5 p-4 border rounded shadow-sm bg-light"
+        className="container mt-3 p-4 border rounded shadow-sm bg-light"
         style={{ maxWidth: "700px" }}
       >
         <h3 className="mb-4 text-center">Flight Search</h3>

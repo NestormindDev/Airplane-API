@@ -1,7 +1,10 @@
 import axios from "axios";
 
 const Axios = axios.create({
-  baseURL: process.env.REACT_APP_AMADEUS_API_BASE_URL,
+  baseURL:
+    process.env.PUBLIC_URL === "production"
+      ? process.env.REACT_APP_AMADEUS_API_BASE_URL
+      : process.env.REACT_APP_AMADEUS_API_BASE_URL_local,
 });
 
 Axios.interceptors.request.use(
