@@ -16,7 +16,19 @@ const Login = () => {
   };
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(formState)
+    if (
+      (!formState.email && !formState.password) ||
+      (!formState.email && formState.password) ||
+      (formState.email && !formState.password)
+    ) {
+      alert("Please fill in all fields.");
+      return;
+    }
+    if (!formState.email.includes("@")) {
+      alert("Please enter a valid email address.");
+      return;
+    }
+
     Axios.post("/api/user/login", formState)
       .then((response) => {
         console.log("Login successful", response.data);
