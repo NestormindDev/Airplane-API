@@ -55,6 +55,7 @@ function App() {
       });
 
       if (flattened.length === 0) {
+        alert("No flight data found for the given criteria.");
         console.log("No flight data found to export.");
         return;
       }
