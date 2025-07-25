@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 function App() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [flightsResp, setFlightResp] = useState([]);
   const [formData, setFormData] = useState({
     origin: "CPH",
     destination: "BKK",
@@ -37,7 +38,7 @@ function App() {
 
     try {
       const response = await Axios.post(`api/fetch-flights`, body);
-
+      setFlightResp(response.data.flights);
       const flattened = response.data.flights.flatMap((flight) => {
         if (!flight || flight.length === 0) return [];
         const { departureDate } = flight;
@@ -80,98 +81,165 @@ function App() {
     navigate("/login");
   };
 
+  const validatePrice = async (flight) => {
+    try {
+      const response = await Axios.post(`api/flight-pricing`, {
+        priceFlightOffersBody: {
+          type: "flight-offers-pricing",
+          flightOffers: [flight.data],
+        },
+      });
+    } catch (error) {
+      console.error("Error validating flight price:", error);
+      return false;
+    }
+  };
+
   return (
-    <div className="App">
-      <div className="container mt-3 d-flex justify-content-end">
+    <div className="App container mt-4">
+      <div className="d-flex justify-content-end mb-3">
         <button className="btn btn-outline-danger" onClick={handleLogout}>
           Logout
         </button>
       </div>
 
-      <form
-        onSubmit={handleSubmit}
-        className="container mt-3 p-4 border rounded shadow-sm bg-light"
-        style={{ maxWidth: "700px" }}
-      >
-        <h3 className="mb-4 text-center">Flight Search</h3>
+      <div className="row">
+        <div className="col-md-6 mb-4">
+          <form
+            onSubmit={handleSubmit}
+            className="p-4 border rounded shadow-sm bg-light"
+          >
+            <h3 className="mb-4 text-center">Flight Search</h3>
 
-        <div className="row">
-          <div className="col-md-6">
-            <div className="mb-3">
-              <label className="form-label">Origin</label>
-              <input
-                type="text"
-                className="form-control"
-                name="origin"
-                placeholder="e.g. DEL"
-                value={formData.origin}
-                onChange={handleChange}
-                required
-              />
+            <div className="row">
+              <div className="col-md-6">
+                <div className="mb-3">
+                  <label className="form-label">Origin</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    name="origin"
+                    placeholder="e.g. DEL"
+                    value={formData.origin}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label">Departure Date</label>
+                  <input
+                    type="date"
+                    className="form-control"
+                    name="selectedDate"
+                    value={formData.selectedDate}
+                    onChange={handleChange}
+                    required
+                    min={new Date().toISOString().split("T")[0]}
+                  />
+                </div>
+              </div>
+
+              <div className="col-md-6">
+                <div className="mb-3">
+                  <label className="form-label">Destination</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    name="destination"
+                    placeholder="e.g. JFK"
+                    value={formData.destination}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label">Adults</label>
+                  <input
+                    type="number"
+                    className="form-control"
+                    name="adults"
+                    min="1"
+                    value={formData.adults}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+              </div>
             </div>
 
-            <div className="mb-3">
-              <label className="form-label">Departure Date</label>
-              <input
-                type="date"
-                className="form-control"
-                name="selectedDate"
-                value={formData.selectedDate}
-                onChange={handleChange}
-                required
-                min={new Date().toISOString().split("T")[0]}
-              />
-            </div>
-          </div>
-
-          <div className="col-md-6">
-            <div className="mb-3">
-              <label className="form-label">Destination</label>
-              <input
-                type="text"
-                className="form-control"
-                name="destination"
-                placeholder="e.g. JFK"
-                value={formData.destination}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div className="mb-3">
-              <label className="form-label">Adults</label>
-              <input
-                type="number"
-                className="form-control"
-                name="adults"
-                min="1"
-                value={formData.adults}
-                onChange={handleChange}
-                required
-              />
-            </div>
-          </div>
+            <button
+              type="submit"
+              className="btn btn-primary w-100 mt-3"
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <span
+                    className="spinner-border spinner-border-sm me-2"
+                    role="status"
+                    aria-hidden="true"
+                  ></span>
+                  Searching...
+                </>
+              ) : (
+                "Search Flights"
+              )}
+            </button>
+          </form>
         </div>
 
-        <button
-          type="submit"
-          className="btn btn-primary w-100 mt-3"
-          disabled={loading}
-        >
-          {loading ? (
-            <>
-              <span
-                className="spinner-border spinner-border-sm me-2"
-                role="status"
-                aria-hidden="true"
-              ></span>
-              Searching...
-            </>
-          ) : (
-            "Search Flights"
-          )}
-        </button>
-      </form>
+        <div className="col-md-6">
+          <div className="border rounded shadow-sm p-3 bg-white h-100 overflow-auto">
+            <h4 className="mb-3">Results</h4>
+            <table className="table table-bordered table-hover">
+              <thead className="table-light">
+                <tr>
+                  <th>Departure Date</th>
+                  <th>Price</th>
+                  <th>Currency</th>
+                  <th>Duration</th>
+                  <th>Segments</th>
+                  <th>From</th>
+                  <th>To</th>
+                </tr>
+              </thead>
+              <tbody>
+                {flightsResp.map((flight) => {
+                  const { departureDate } = flight;
+                  return (
+                    <tr
+                      key={flight._id}
+                      onClick={validatePrice.bind(null, flight)}
+                    >
+                      <td>{departureDate}</td>
+                      <td>{flight.data.price.total}</td>
+                      <td>{flight.data.price.currency}</td>
+                      <td>{flight.data.itineraries?.[0]?.duration}</td>
+                      <td>
+                        {flight.data.itineraries?.[0]?.segments?.length || 0}
+                      </td>
+                      <td>
+                        {
+                          flight.data.itineraries?.[0]?.segments?.[0]?.departure
+                            ?.iataCode
+                        }
+                      </td>
+                      <td>
+                        {
+                          flight.data.itineraries?.[0]?.segments?.slice(-1)[0]
+                            ?.arrival?.iataCode
+                        }
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
